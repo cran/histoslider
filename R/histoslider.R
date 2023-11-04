@@ -37,6 +37,7 @@ input_histoslider <- function(id, label, values, start = NULL, end = NULL, width
     width = "100%",
     height = "100%",
     label = label,
+    selectedColor = "var(--bs-primary, #0074D9)",
     !!!compute_bin_config(values, breaks, start, end)
   )
 
@@ -165,8 +166,8 @@ compute_bin_config <- function(values, breaks = rlang::missing_arg(), start = NU
 
   rng <- range(x$breaks)
   selection <- c(
-    start %||% rng[1],
-    end %||% rng[2]
+    as_numeric(start) %||% rng[1],
+    as_numeric(end) %||% rng[2]
   )
 
   res <- list(
@@ -190,6 +191,16 @@ compute_bin_config <- function(values, breaks = rlang::missing_arg(), start = NU
     )
   }
 
+  res
+}
+
+# also converts dates/date-time to milliseconds (since EPOCH)
+as_numeric <- function(x) {
+  if (length(x) == 0) return(x)
+  res <- as.numeric(x)
+  if (is_date_time(x)) {
+    res <- res * if (inherits(x, "Date")) 86400000 else 1000
+  }
   res
 }
 
